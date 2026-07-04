@@ -107,18 +107,40 @@
 	            overflow: hidden;
 	        }
 	        .input-group { margin-bottom: 15px; }
-	        input[type="text"], textarea {
+	        input[type="text"] {
 	            width: 100%;
 	            padding: 10px;
 	            border: 1px solid #ccc;
 	            border-radius: 4px;
 	            font-size: 16px;
 	        }
-	        textarea {
+	        /* 富文本编辑器工具栏 */
+	        .toolbar {
+	            border: 1px solid #ccc;
+	            border-bottom: none;
+	            padding: 5px;
+	            border-radius: 4px 4px 0 0;
+	            background: #fafafa;
+	        }
+	        /* 编辑区主体 */
+	        .editor-content {
 	            flex: 1;
-	            resize: none;
-	            font-family: inherit;
+	            border: 1px solid #ccc;
+	            border-radius: 0 0 4px 4px;
+	            padding: 10px;
+	            font-size: 16px;
 	            line-height: 1.6;
+	            overflow-y: auto;
+	            white-space: pre-wrap;
+	        }
+	        .editor-content:focus { outline: none; border-color: var(--primary-color); }
+	        /* 笔记内图片样式：自适应宽度 */
+	        .editor-content img {
+	            max-width: 100%;
+	            height: auto;
+	            border-radius: 4px;
+	            margin: 5px 0;
+	            display: block;
 	        }
 	        button {
 	            background: var(--primary-color);
@@ -138,6 +160,12 @@
 	            justify-content: center;
 	            color: #888;
 	            font-size: 1.2rem;
+	        }
+	        [contenteditable][data-placeholder]:empty:before {
+	            content: attr(data-placeholder);
+	            color: #aaa;
+	            pointer-events: none;
+	            display: block;
 	        }
 	        @media (max-width: 768px) {
 	            .container { flex-direction: column; }
@@ -164,7 +192,13 @@
 	                <div class="input-group">
 	                    <input type="text" id="noteTitle" placeholder="输入笔记标题...">
 	                </div>
-	                <textarea id="noteContent" placeholder="在这里输入笔记内容..."></textarea>
+	                <!-- 富文本工具栏 -->
+	                <div class="toolbar">
+	                    <button onclick="document.getElementById('imageInput').click()" style="background:#555; padding: 5px 10px; font-size: 13px;">🖼️ 插入图片</button>
+	                    <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="insertImageFromFile(event)">
+	                </div>
+	                <!-- 富文本编辑区 -->
+	                <div id="noteContent" class="editor-content" contenteditable="true" data-placeholder="在这里输入笔记内容，可直接 Ctrl+V 粘贴截图..."></div>
 	                <button id="saveBtn" onclick="saveNote()">💾 保存笔记</button>
 	            </div>
 	            <div id="placeholderView" class="placeholder">
@@ -301,7 +335,7 @@
 	            document.getElementById('editorView').style.display = 'flex';
 	            document.getElementById('placeholderView').style.display = 'none';
 	            document.getElementById('noteTitle').value = note.name;
-	            document.getElementById('noteContent').value = note.content || '';
+	            document.getElementById('noteContent').innerHTML = note.content || '';
 	        }
 	        function saveNote() {
 	            if (!currentNoteId) return;
@@ -309,10 +343,14 @@
 	            let title = document.getElementById('noteTitle').value.trim();
 	            if (!title) title = "无标题笔记";
 	            note.name = title;
-	            note.content = document.getElementById('noteContent').value;
-	            saveFileSystem();
-	            renderTree();
-	            alert('保存成功！');
+	            note.content = document.getElementById('noteContent').innerHTML;
+	            try {
+	                saveFileSystem();
+	                renderTree();
+	                alert('保存成功！');
+	            } catch (e) {
+	                alert('保存失败！图片可能过大超过了浏览器存储限制(约5MB)。请尽量使用小图片或截图。');
+	            }
 	        }
 	        function deleteItem(id) {
 	            if (!confirm('确定要删除该项吗？如果是文件夹，内部所有内容将被一并删除！')) return;
@@ -330,6 +368,38 @@
 	        function saveFileSystem() {
 	            localStorage.setItem('myNoteFileSystem', JSON.stringify(fileSystem));
 	        }
+	        // ========== 图片处理功能 ==========
+	        // 1. 从文件选择插入图片
+	        function insertImageFromFile(event) {
+	            const file = event.target.files[0];
+	            if (!file) return;
+	            const reader = new FileReader();
+	            reader.onload = function(e) {
+	                document.execCommand('insertImage', false, e.target.result);
+	            };
+	            reader.readAsDataURL(file);
+	            event.target.value = ''; // 清空 input 防止重复选择同一文件失效
+	        }
+	        // 2. 监听粘贴事件（支持直接粘贴截图）
+	        document.getElementById('noteContent').addEventListener('paste', function (e) {
+	            const items = (e.clipboardData || window.clipboardData).items;
+	            let imageItem = null;
+	            for (let i = 0; i < items.length; i++) {
+	                if (items[i].type.indexOf('image') !== -1) {
+	                    imageItem = items[i];
+	                    break;
+	                }
+	            }
+	            if (imageItem) {
+	                e.preventDefault(); // 阻止默认的粘贴行为（防止乱码）
+	                const file = imageItem.getAsFile();
+	                const reader = new FileReader();
+	                reader.onload = function(event) {
+	                    document.execCommand('insertImage', false, event.target.result);
+	                };
+	                reader.readAsDataURL(file);
+	            }
+	        });
 	        // 初始化
 	        renderTree();
 	    </script>
