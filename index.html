@@ -3,13 +3,13 @@
 	<head>
 	    <meta charset="UTF-8">
 	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	    <title>我的在线笔记</title>
+	    <title>我的在线笔记库</title>
 	    <style>
 	        :root {
 	            --primary-color: #4CAF50;
 	            --bg-color: #f4f7f6;
 	            --text-color: #333;
-	            --sidebar-bg: #2c3e50;
+	            --sidebar-bg: #ffffff;
 	        }
 	        * {
 	            box-sizing: border-box;
@@ -21,75 +21,92 @@
 	            background-color: var(--bg-color);
 	            color: var(--text-color);
 	            line-height: 1.7;
+	            height: 100vh;
+	            display: flex;
+	            flex-direction: column;
 	        }
 	        header {
 	            background-color: var(--primary-color);
 	            color: white;
-	            padding: 1rem;
-	            text-align: center;
-	            position: sticky;
-	            top: 0;
-	            z-index: 100;
+	            padding: 1rem 1.5rem;
 	            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-	        }
-	        .container {
-	            display: flex;
-	            max-width: 1000px;
-	            margin: 20px auto;
-	            padding: 0 15px;
-	        }
-	        /* 侧边栏：笔记列表 */
-	        aside {
-	            width: 30%;
-	            background: white;
-	            padding: 15px;
-	            border-radius: 8px;
-	            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-	            height: 80vh;
-	            overflow-y: auto;
-	            margin-right: 20px;
-	        }
-	        aside h3 {
-	            margin-bottom: 15px;
-	            border-bottom: 2px solid var(--primary-color);
-	            padding-bottom: 10px;
-	        }
-	        .note-list-item {
-	            background: #f9f9f9;
-	            padding: 10px;
-	            margin-bottom: 10px;
-	            border-radius: 4px;
-	            cursor: pointer;
 	            display: flex;
 	            justify-content: space-between;
 	            align-items: center;
-	            transition: background 0.2s;
+	            flex-wrap: wrap;
 	        }
-	        .note-list-item:hover { background: #eef; }
-	        .note-list-item.active { background: #e0f7fa; border-left: 4px solid var(--primary-color); }
-	        .delete-btn {
-	            background: #ff4d4f;
-	            color: white;
-	            border: none;
-	            padding: 3px 8px;
-	            border-radius: 4px;
+	        header h1 { font-size: 1.5rem; }
+	        .breadcrumb {
+	            font-size: 0.9rem;
+	            opacity: 0.9;
+	            margin-top: 5px;
+	            width: 100%;
+	        }
+	        .breadcrumb span { cursor: pointer; text-decoration: underline; }
+	        .container {
+	            display: flex;
+	            flex: 1;
+	            overflow: hidden;
+	            padding: 15px;
+	            gap: 15px;
+	        }
+	        /* 左侧目录树 */
+	        aside {
+	            width: 300px;
+	            background: var(--sidebar-bg);
+	            padding: 15px;
+	            border-radius: 8px;
+	            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+	            overflow-y: auto;
+	            display: flex;
+	            flex-direction: column;
+	        }
+	        .sidebar-actions {
+	            display: flex;
+	            gap: 10px;
+	            margin-bottom: 15px;
+	        }
+	        .sidebar-actions button {
+	            flex: 1;
+	            padding: 8px;
+	            font-size: 14px;
+	        }
+	        .tree-item {
+	            padding: 8px 10px;
 	            cursor: pointer;
-	            font-size: 12px;
+	            border-radius: 4px;
+	            display: flex;
+	            align-items: center;
+	            justify-content: space-between;
+	            transition: background 0.2s;
+	            user-select: none;
 	        }
-	        /* 主内容区：编辑与查看 */
+	        .tree-item:hover { background: #eef; }
+	        .tree-item.active { background: #e0f7fa; border-left: 3px solid var(--primary-color); }
+	        .tree-item .label { display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+	        .tree-children { margin-left: 20px; border-left: 1px dashed #ddd; }
+	        .delete-btn {
+	            background: transparent;
+	            color: #ff4d4f;
+	            border: none;
+	            font-size: 14px;
+	            cursor: pointer;
+	            opacity: 0;
+	            transition: opacity 0.2s;
+	        }
+	        .tree-item:hover .delete-btn { opacity: 1; }
+	        /* 右侧编辑区 */
 	        main {
 	            flex: 1;
-	            background: white;
+	            background: var(--sidebar-bg);
 	            padding: 20px;
 	            border-radius: 8px;
 	            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 	            display: flex;
 	            flex-direction: column;
-	            height: 80vh;
+	            overflow: hidden;
 	        }
-	        .input-group {
-	            margin-bottom: 15px;
-	        }
+	        .input-group { margin-bottom: 15px; }
 	        input[type="text"], textarea {
 	            width: 100%;
 	            padding: 10px;
@@ -101,127 +118,220 @@
 	            flex: 1;
 	            resize: none;
 	            font-family: inherit;
-	            line-height: 1.5;
-	        }
-	        .btn-group {
-	            margin-top: 15px;
-	            display: flex;
-	            gap: 10px;
+	            line-height: 1.6;
 	        }
 	        button {
 	            background: var(--primary-color);
 	            color: white;
 	            border: none;
-	            padding: 10px 20px;
+	            padding: 8px 16px;
 	            border-radius: 4px;
 	            cursor: pointer;
-	            font-size: 16px;
+	            font-size: 14px;
 	        }
 	        button:hover { opacity: 0.9; }
-	        #newNoteBtn { background: #008CBA; }
+	        #saveBtn { background: #008CBA; align-self: flex-start; margin-top: 15px;}
+	        .placeholder {
+	            display: flex;
+	            height: 100%;
+	            align-items: center;
+	            justify-content: center;
+	            color: #888;
+	            font-size: 1.2rem;
+	        }
 	        @media (max-width: 768px) {
 	            .container { flex-direction: column; }
-	            aside { width: 100%; margin-right: 0; margin-bottom: 20px; height: auto; max-height: 30vh; }
-	            main { height: auto; min-height: 50vh; }
+	            aside { width: 100%; height: 35vh; }
+	            main { height: 60vh; }
 	        }
 	    </style>
 	</head>
 	<body>
 	    <header>
-	        <h1>我的在线笔记</h1>
+	        <h1>📒 我的在线笔记库</h1>
+	        <div class="breadcrumb" id="breadcrumb">当前目录：<span onclick="navigateTo('root')">根目录</span></div>
 	    </header>
 	    <div class="container">
-	        <!-- 左侧：笔记列表 -->
 	        <aside>
-	            <h3>📝 笔记列表</h3>
-	            <div id="noteList"></div>
-	        </aside>
-	        <!-- 右侧：编辑区 -->
-	        <main>
-	            <div class="input-group">
-	                <input type="text" id="noteTitle" placeholder="输入笔记标题...">
+	            <div class="sidebar-actions">
+	                <button onclick="createItem('folder')">📁 新建文件夹</button>
+	                <button onclick="createItem('note')">📄 新建笔记</button>
 	            </div>
-	            <textarea id="noteContent" placeholder="在这里输入笔记内容...支持实时保存，手机电脑同步查看。"></textarea>
-	            <div class="btn-group">
-	                <button onclick="saveNote()">💾 保存笔记</button>
-	                <button id="newNoteBtn" onclick="newNote()">➕ 新建笔记</button>
+	            <div id="treeContainer"></div>
+	        </aside>
+	        <main>
+	            <div id="editorView" style="display: none; flex: 1; flex-direction: column;">
+	                <div class="input-group">
+	                    <input type="text" id="noteTitle" placeholder="输入笔记标题...">
+	                </div>
+	                <textarea id="noteContent" placeholder="在这里输入笔记内容..."></textarea>
+	                <button id="saveBtn" onclick="saveNote()">💾 保存笔记</button>
+	            </div>
+	            <div id="placeholderView" class="placeholder">
+	                请在左侧选择一篇笔记进行编辑，或点击左上角新建笔记
 	            </div>
 	        </main>
 	    </div>
 	    <script>
-	        let notes = JSON.parse(localStorage.getItem('myNotes')) || [];
+	        // 数据结构：树形结构
+	        let fileSystem = JSON.parse(localStorage.getItem('myNoteFileSystem')) || {
+	            id: 'root', name: '我的笔记库', type: 'folder', children: []
+	        };
 	        let currentNoteId = null;
-	        function renderList() {
-	            let listEl = document.getElementById('noteList');
-	            if (notes.length === 0) {
-	                listEl.innerHTML = '<p style="color:#999;font-size:14px;">暂无笔记，点击右侧新建。</p>';
-	                return;
+	        let currentFolderId = 'root'; // 默认在根目录操作
+	        let expandedFolders = JSON.parse(localStorage.getItem('expandedFolders')) || ['root']; // 记录展开状态
+	        // 递归查找节点
+	        function findNode(node, id) {
+	            if (node.id === id) return node;
+	            if (node.type === 'folder' && node.children) {
+	                for (let child of node.children) {
+	                    let result = findNode(child, id);
+	                    if (result) return result;
+	                }
 	            }
-	            listEl.innerHTML = '';
-	            notes.forEach(note => {
-	                let div = document.createElement('div');
-	                div.className = 'note-list-item' + (note.id === currentNoteId ? ' active' : '');
-	                div.innerHTML = `
-	                    <span onclick="loadNote(${note.id})">${note.title}</span>
-	                    <button class="delete-btn" onclick="deleteNote(${note.id})">删除</button>
-	                `;
-	                listEl.appendChild(div);
-	            });
+	            return null;
 	        }
-	        function loadNote(id) {
-	            let note = notes.find(n => n.id === id);
-	            if (note) {
-	                document.getElementById('noteTitle').value = note.title;
-	                document.getElementById('noteContent').value = note.content;
-	                currentNoteId = id;
-	                renderList();
+	        // 递归查找父节点
+	        function findParent(node, id, parent = null) {
+	            if (node.id === id) return parent;
+	            if (node.type === 'folder' && node.children) {
+	                for (let child of node.children) {
+	                    let result = findParent(child, id, node);
+	                    if (result) return result;
+	                }
 	            }
+	            return null;
+	        }
+	        // 获取当前路径
+	        function getPath(id) {
+	            let path = [];
+	            let current = findNode(fileSystem, id);
+	            while (current && current.id !== 'root') {
+	                path.unshift(current.name);
+	                current = findParent(fileSystem, current.id);
+	            }
+	            return path.length > 0 ? '根目录 / ' + path.join(' / ') : '根目录';
+	        }
+	        // 渲染左侧树状结构
+	        function renderTree() {
+	            const container = document.getElementById('treeContainer');
+	            container.innerHTML = '';
+	            renderNode(fileSystem, container, 0);
+	            updateBreadcrumb();
+	        }
+	        function renderNode(node, container, level) {
+	            if (node.id !== 'root') {
+	                let div = document.createElement('div');
+	                div.className = 'tree-item';
+	                // 高亮当前选中的笔记和文件夹
+	                if (node.id === currentNoteId || node.id === currentFolderId) {
+	                    div.classList.add('active');
+	                }
+	                let icon = node.type === 'folder' ? (expandedFolders.includes(node.id) ? '📂' : '📁') : '📄';
+	                div.innerHTML = `
+	                    <span class="label" style="padding-left: ${level * 15}px">
+	                        ${icon} ${node.name}
+	                    </span>
+	                    <button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${node.id}')">🗑️</button>
+	                `;
+	                div.onclick = (e) => {
+	                    e.stopPropagation();
+	                    if (node.type === 'folder') {
+	                        currentFolderId = node.id; // 进入该文件夹
+	                        toggleFolder(node.id);
+	                    } else {
+	                        currentNoteId = node.id; // 选中该笔记
+	                        currentFolderId = findParent(fileSystem, node.id).id; // 切换到笔记所在目录
+	                        loadNote(node);
+	                    }
+	                    renderTree();
+	                };
+	                container.appendChild(div);
+	            }
+	            // 渲染子节点
+	            if (node.type === 'folder' && expandedFolders.includes(node.id) && node.children) {
+	                let childContainer = document.createElement('div');
+	                childContainer.className = 'tree-children';
+	                node.children.forEach(child => renderNode(child, childContainer, level + 1));
+	                container.appendChild(childContainer);
+	            }
+	        }
+	        function updateBreadcrumb() {
+	            document.getElementById('breadcrumb').innerHTML = `当前目录：${getPath(currentFolderId)}`;
+	        }
+	        function toggleFolder(id) {
+	            let index = expandedFolders.indexOf(id);
+	            if (index > -1) {
+	                expandedFolders.splice(index, 1);
+	            } else {
+	                expandedFolders.push(id);
+	            }
+	            localStorage.setItem('expandedFolders', JSON.stringify(expandedFolders));
+	        }
+	        function navigateTo(id) {
+	            currentFolderId = id;
+	            if (!expandedFolders.includes(id)) toggleFolder(id);
+	            renderTree();
+	        }
+	        function createItem(type) {
+	            let name = prompt(`请输入${type === 'folder' ? '文件夹' : '笔记'}名称：`, type === 'folder' ? '新建文件夹' : '新建笔记');
+	            if (!name) return;
+	            let parent = findNode(fileSystem, currentFolderId);
+	            if (!parent || parent.type !== 'folder') return;
+	            let newItem = {
+	                id: 'item_' + Date.now(),
+	                name: name,
+	                type: type
+	            };
+	            if (type === 'folder') {
+	                newItem.children = [];
+	                if (!expandedFolders.includes(newItem.id)) expandedFolders.push(newItem.id);
+	            } else {
+	                newItem.content = '';
+	                currentNoteId = newItem.id; // 自动选中新笔记
+	            }
+	            parent.children.push(newItem);
+	            saveFileSystem();
+	            renderTree();
+	            if (type === 'note') {
+	                loadNote(newItem);
+	            }
+	        }
+	        function loadNote(note) {
+	            document.getElementById('editorView').style.display = 'flex';
+	            document.getElementById('placeholderView').style.display = 'none';
+	            document.getElementById('noteTitle').value = note.name;
+	            document.getElementById('noteContent').value = note.content || '';
 	        }
 	        function saveNote() {
+	            if (!currentNoteId) return;
+	            let note = findNode(fileSystem, currentNoteId);
 	            let title = document.getElementById('noteTitle').value.trim();
-	            let content = document.getElementById('noteContent').value.trim();
-	            if (!title && !content) {
-	                alert('标题和内容不能都为空！');
-	                return;
-	            }
 	            if (!title) title = "无标题笔记";
-	            if (currentNoteId) {
-	                // 更新已有笔记
-	                let note = notes.find(n => n.id === currentNoteId);
-	                note.title = title;
-	                note.content = content;
-	            } else {
-	                // 新增笔记
-	                let newNote = {
-	                    id: Date.now(),
-	                    title: title,
-	                    content: content
-	                };
-	                notes.unshift(newNote);
-	                currentNoteId = newNote.id;
-	            }
-	            localStorage.setItem('myNotes', JSON.stringify(notes));
-	            renderList();
+	            note.name = title;
+	            note.content = document.getElementById('noteContent').value;
+	            saveFileSystem();
+	            renderTree();
 	            alert('保存成功！');
 	        }
-	        function newNote() {
-	            document.getElementById('noteTitle').value = '';
-	            document.getElementById('noteContent').value = '';
-	            currentNoteId = null;
-	            renderList();
-	        }
-	        function deleteNote(id) {
-	            if (confirm('确定要删除这条笔记吗？')) {
-	                notes = notes.filter(n => n.id !== id);
-	                localStorage.setItem('myNotes', JSON.stringify(notes));
-	                if (currentNoteId === id) {
-	                    newNote();
-	                }
-	                renderList();
+	        function deleteItem(id) {
+	            if (!confirm('确定要删除该项吗？如果是文件夹，内部所有内容将被一并删除！')) return;
+	            let parent = findParent(fileSystem, id);
+	            if (!parent) return;
+	            parent.children = parent.children.filter(child => child.id !== id);
+	            if (currentNoteId === id) {
+	                currentNoteId = null;
+	                document.getElementById('editorView').style.display = 'none';
+	                document.getElementById('placeholderView').style.display = 'flex';
 	            }
+	            saveFileSystem();
+	            renderTree();
+	        }
+	        function saveFileSystem() {
+	            localStorage.setItem('myNoteFileSystem', JSON.stringify(fileSystem));
 	        }
 	        // 初始化
-	        renderList();
+	        renderTree();
 	    </script>
 	</body>
 	</html>
