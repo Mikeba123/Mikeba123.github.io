@@ -3,14 +3,13 @@
 	<head>
 	    <meta charset="UTF-8">
 	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	    <title>我的个人笔记库</title>
+	    <title>我的在线笔记</title>
 	    <style>
 	        :root {
 	            --primary-color: #4CAF50;
 	            --bg-color: #f4f7f6;
 	            --text-color: #333;
 	            --sidebar-bg: #2c3e50;
-	            --sidebar-text: #ecf0f1;
 	        }
 	        * {
 	            box-sizing: border-box;
@@ -26,7 +25,7 @@
 	        header {
 	            background-color: var(--primary-color);
 	            color: white;
-	            padding: 1rem 1.5rem;
+	            padding: 1rem;
 	            text-align: center;
 	            position: sticky;
 	            top: 0;
@@ -35,110 +34,194 @@
 	        }
 	        .container {
 	            display: flex;
-	            max-width: 1200px;
+	            max-width: 1000px;
 	            margin: 20px auto;
 	            padding: 0 15px;
 	        }
+	        /* 侧边栏：笔记列表 */
 	        aside {
-	            width: 250px;
+	            width: 30%;
 	            background: white;
-	            padding: 20px;
+	            padding: 15px;
 	            border-radius: 8px;
 	            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-	            height: fit-content;
-	            position: sticky;
-	            top: 80px;
+	            height: 80vh;
+	            overflow-y: auto;
+	            margin-right: 20px;
 	        }
 	        aside h3 {
 	            margin-bottom: 15px;
 	            border-bottom: 2px solid var(--primary-color);
 	            padding-bottom: 10px;
 	        }
-	        aside ul { list-style: none; }
-	        aside ul li { margin-bottom: 10px; }
-	        aside ul li a {
-	            text-decoration: none;
-	            color: #555;
-	            cursor: pointer;
-	            display: block;
-	            padding: 8px 12px;
+	        .note-list-item {
+	            background: #f9f9f9;
+	            padding: 10px;
+	            margin-bottom: 10px;
 	            border-radius: 4px;
-	            transition: all 0.3s ease;
+	            cursor: pointer;
+	            display: flex;
+	            justify-content: space-between;
+	            align-items: center;
+	            transition: background 0.2s;
 	        }
-	        aside ul li a:hover { background-color: var(--bg-color); color: var(--primary-color); }
-	        aside ul li a.active { background-color: var(--primary-color); color: white; }
+	        .note-list-item:hover { background: #eef; }
+	        .note-list-item.active { background: #e0f7fa; border-left: 4px solid var(--primary-color); }
+	        .delete-btn {
+	            background: #ff4d4f;
+	            color: white;
+	            border: none;
+	            padding: 3px 8px;
+	            border-radius: 4px;
+	            cursor: pointer;
+	            font-size: 12px;
+	        }
+	        /* 主内容区：编辑与查看 */
 	        main {
 	            flex: 1;
-	            margin-left: 20px;
 	            background: white;
-	            padding: 30px;
+	            padding: 20px;
 	            border-radius: 8px;
 	            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+	            display: flex;
+	            flex-direction: column;
+	            height: 80vh;
 	        }
-	        .note-section { display: none; }
-	        .note-section.active { display: block; }
-	        h2 { color: var(--sidebar-bg); margin-bottom: 15px; }
-	        p { margin-bottom: 15px; }
-	        code { background: #eee; padding: 2px 5px; border-radius: 4px; font-family: monospace; }
-	        /* 平板与手机响应式适配 */
+	        .input-group {
+	            margin-bottom: 15px;
+	        }
+	        input[type="text"], textarea {
+	            width: 100%;
+	            padding: 10px;
+	            border: 1px solid #ccc;
+	            border-radius: 4px;
+	            font-size: 16px;
+	        }
+	        textarea {
+	            flex: 1;
+	            resize: none;
+	            font-family: inherit;
+	            line-height: 1.5;
+	        }
+	        .btn-group {
+	            margin-top: 15px;
+	            display: flex;
+	            gap: 10px;
+	        }
+	        button {
+	            background: var(--primary-color);
+	            color: white;
+	            border: none;
+	            padding: 10px 20px;
+	            border-radius: 4px;
+	            cursor: pointer;
+	            font-size: 16px;
+	        }
+	        button:hover { opacity: 0.9; }
+	        #newNoteBtn { background: #008CBA; }
 	        @media (max-width: 768px) {
 	            .container { flex-direction: column; }
-	            aside { width: 100%; position: relative; top: 0; margin-bottom: 20px; }
-	            main { margin-left: 0; padding: 20px; }
+	            aside { width: 100%; margin-right: 0; margin-bottom: 20px; height: auto; max-height: 30vh; }
+	            main { height: auto; min-height: 50vh; }
 	        }
 	    </style>
 	</head>
 	<body>
 	    <header>
-	        <h1>我的个人笔记库</h1>
+	        <h1>我的在线笔记</h1>
 	    </header>
 	    <div class="container">
+	        <!-- 左侧：笔记列表 -->
 	        <aside>
-	            <h3>笔记目录</h3>
-	            <ul id="nav-menu">
-	                <li><a class="nav-link active" onclick="showNote('note1', this)">AI工具效率指南</a></li>
-	                <li><a class="nav-link" onclick="showNote('note2', this)">前端基础知识</a></li>
-	                <li><a class="nav-link" onclick="showNote('note3', this)">项目规划与想法</a></li>
-	            </ul>
+	            <h3>📝 笔记列表</h3>
+	            <div id="noteList"></div>
 	        </aside>
+	        <!-- 右侧：编辑区 -->
 	        <main>
-	            <!-- 笔记1 -->
-	            <div id="note1" class="note-section active">
-	                <h2>AI工具效率指南</h2>
-	                <p>现代AI工具（如通义千问Web Dev等）已经具备了强大的代码生成能力。只需输入自然语言需求，即可在几秒钟内生成包含HTML、CSS和JS的完整网页代码。</p>
-	                <p><strong>核心优势：</strong></p>
-	                <p>1. 零代码基础也能搭建专业美观的网站。<br>
-	                2. 自动适配响应式布局，手机电脑平板访问体验一致。<br>
-	                3. 结合GitHub Pages，实现免费托管与实时更新。</p>
+	            <div class="input-group">
+	                <input type="text" id="noteTitle" placeholder="输入笔记标题...">
 	            </div>
-	            <!-- 笔记2 -->
-	            <div id="note2" class="note-section">
-	                <h2>前端基础知识</h2>
-	                <p>HTML是网页的骨架。一个标准的HTML文档由 <code>&lt;!DOCTYPE html&gt;</code> 声明、<code>&lt;html&gt;</code> 根元素、<code>&lt;head&gt;</code> 头部（包含元数据）和 <code>&lt;body&gt;</code> 主体（包含可见内容）组成。</p>
-	                <p>通过HTML5的语义化标签（如 <code>&lt;header&gt;</code>、<code>&lt;main&gt;</code>、<code>&lt;aside&gt;</code>），可以让网页结构更清晰，也有助于搜索引擎优化。</p>
-	            </div>
-	            <!-- 笔记3 -->
-	            <div id="note3" class="note-section">
-	                <h2>项目规划与想法</h2>
-	                <p>计划搭建一个纯静态的个人知识库系统。利用GitHub的版本控制功能，每次更新笔记只需修改HTML文件并推送，网站内容即可实时同步更新。</p>
-	                <p>后续可以探索引入Markdown解析库，实现只需替换文本内容即可更新排版，进一步降低维护成本。</p>
+	            <textarea id="noteContent" placeholder="在这里输入笔记内容...支持实时保存，手机电脑同步查看。"></textarea>
+	            <div class="btn-group">
+	                <button onclick="saveNote()">💾 保存笔记</button>
+	                <button id="newNoteBtn" onclick="newNote()">➕ 新建笔记</button>
 	            </div>
 	        </main>
 	    </div>
 	    <script>
-	        function showNote(noteId, element) {
-	            // 隐藏所有笔记内容
-	            document.querySelectorAll('.note-section').forEach(section => {
-	                section.classList.remove('active');
+	        let notes = JSON.parse(localStorage.getItem('myNotes')) || [];
+	        let currentNoteId = null;
+	        function renderList() {
+	            let listEl = document.getElementById('noteList');
+	            if (notes.length === 0) {
+	                listEl.innerHTML = '<p style="color:#999;font-size:14px;">暂无笔记，点击右侧新建。</p>';
+	                return;
+	            }
+	            listEl.innerHTML = '';
+	            notes.forEach(note => {
+	                let div = document.createElement('div');
+	                div.className = 'note-list-item' + (note.id === currentNoteId ? ' active' : '');
+	                div.innerHTML = `
+	                    <span onclick="loadNote(${note.id})">${note.title}</span>
+	                    <button class="delete-btn" onclick="deleteNote(${note.id})">删除</button>
+	                `;
+	                listEl.appendChild(div);
 	            });
-	            // 移除所有导航高亮
-	            document.querySelectorAll('.nav-link').forEach(link => {
-	                link.classList.remove('active');
-	            });
-	            // 显示当前选中笔记并高亮导航
-	            document.getElementById(noteId).classList.add('active');
-	            element.classList.add('active');
 	        }
+	        function loadNote(id) {
+	            let note = notes.find(n => n.id === id);
+	            if (note) {
+	                document.getElementById('noteTitle').value = note.title;
+	                document.getElementById('noteContent').value = note.content;
+	                currentNoteId = id;
+	                renderList();
+	            }
+	        }
+	        function saveNote() {
+	            let title = document.getElementById('noteTitle').value.trim();
+	            let content = document.getElementById('noteContent').value.trim();
+	            if (!title && !content) {
+	                alert('标题和内容不能都为空！');
+	                return;
+	            }
+	            if (!title) title = "无标题笔记";
+	            if (currentNoteId) {
+	                // 更新已有笔记
+	                let note = notes.find(n => n.id === currentNoteId);
+	                note.title = title;
+	                note.content = content;
+	            } else {
+	                // 新增笔记
+	                let newNote = {
+	                    id: Date.now(),
+	                    title: title,
+	                    content: content
+	                };
+	                notes.unshift(newNote);
+	                currentNoteId = newNote.id;
+	            }
+	            localStorage.setItem('myNotes', JSON.stringify(notes));
+	            renderList();
+	            alert('保存成功！');
+	        }
+	        function newNote() {
+	            document.getElementById('noteTitle').value = '';
+	            document.getElementById('noteContent').value = '';
+	            currentNoteId = null;
+	            renderList();
+	        }
+	        function deleteNote(id) {
+	            if (confirm('确定要删除这条笔记吗？')) {
+	                notes = notes.filter(n => n.id !== id);
+	                localStorage.setItem('myNotes', JSON.stringify(notes));
+	                if (currentNoteId === id) {
+	                    newNote();
+	                }
+	                renderList();
+	            }
+	        }
+	        // 初始化
+	        renderList();
 	    </script>
 	</body>
 	</html>
