@@ -1,0 +1,144 @@
+	<!DOCTYPE html>
+	<html lang="zh-CN">
+	<head>
+	    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <title>我的个人笔记库</title>
+	    <style>
+	        :root {
+	            --primary-color: #4CAF50;
+	            --bg-color: #f4f7f6;
+	            --text-color: #333;
+	            --sidebar-bg: #2c3e50;
+	            --sidebar-text: #ecf0f1;
+	        }
+	        * {
+	            box-sizing: border-box;
+	            margin: 0;
+	            padding: 0;
+	            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	        }
+	        body {
+	            background-color: var(--bg-color);
+	            color: var(--text-color);
+	            line-height: 1.7;
+	        }
+	        header {
+	            background-color: var(--primary-color);
+	            color: white;
+	            padding: 1rem 1.5rem;
+	            text-align: center;
+	            position: sticky;
+	            top: 0;
+	            z-index: 100;
+	            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+	        }
+	        .container {
+	            display: flex;
+	            max-width: 1200px;
+	            margin: 20px auto;
+	            padding: 0 15px;
+	        }
+	        aside {
+	            width: 250px;
+	            background: white;
+	            padding: 20px;
+	            border-radius: 8px;
+	            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+	            height: fit-content;
+	            position: sticky;
+	            top: 80px;
+	        }
+	        aside h3 {
+	            margin-bottom: 15px;
+	            border-bottom: 2px solid var(--primary-color);
+	            padding-bottom: 10px;
+	        }
+	        aside ul { list-style: none; }
+	        aside ul li { margin-bottom: 10px; }
+	        aside ul li a {
+	            text-decoration: none;
+	            color: #555;
+	            cursor: pointer;
+	            display: block;
+	            padding: 8px 12px;
+	            border-radius: 4px;
+	            transition: all 0.3s ease;
+	        }
+	        aside ul li a:hover { background-color: var(--bg-color); color: var(--primary-color); }
+	        aside ul li a.active { background-color: var(--primary-color); color: white; }
+	        main {
+	            flex: 1;
+	            margin-left: 20px;
+	            background: white;
+	            padding: 30px;
+	            border-radius: 8px;
+	            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+	        }
+	        .note-section { display: none; }
+	        .note-section.active { display: block; }
+	        h2 { color: var(--sidebar-bg); margin-bottom: 15px; }
+	        p { margin-bottom: 15px; }
+	        code { background: #eee; padding: 2px 5px; border-radius: 4px; font-family: monospace; }
+	        /* 平板与手机响应式适配 */
+	        @media (max-width: 768px) {
+	            .container { flex-direction: column; }
+	            aside { width: 100%; position: relative; top: 0; margin-bottom: 20px; }
+	            main { margin-left: 0; padding: 20px; }
+	        }
+	    </style>
+	</head>
+	<body>
+	    <header>
+	        <h1>我的个人笔记库</h1>
+	    </header>
+	    <div class="container">
+	        <aside>
+	            <h3>笔记目录</h3>
+	            <ul id="nav-menu">
+	                <li><a class="nav-link active" onclick="showNote('note1', this)">AI工具效率指南</a></li>
+	                <li><a class="nav-link" onclick="showNote('note2', this)">前端基础知识</a></li>
+	                <li><a class="nav-link" onclick="showNote('note3', this)">项目规划与想法</a></li>
+	            </ul>
+	        </aside>
+	        <main>
+	            <!-- 笔记1 -->
+	            <div id="note1" class="note-section active">
+	                <h2>AI工具效率指南</h2>
+	                <p>现代AI工具（如通义千问Web Dev等）已经具备了强大的代码生成能力。只需输入自然语言需求，即可在几秒钟内生成包含HTML、CSS和JS的完整网页代码。</p>
+	                <p><strong>核心优势：</strong></p>
+	                <p>1. 零代码基础也能搭建专业美观的网站。<br>
+	                2. 自动适配响应式布局，手机电脑平板访问体验一致。<br>
+	                3. 结合GitHub Pages，实现免费托管与实时更新。</p>
+	            </div>
+	            <!-- 笔记2 -->
+	            <div id="note2" class="note-section">
+	                <h2>前端基础知识</h2>
+	                <p>HTML是网页的骨架。一个标准的HTML文档由 <code>&lt;!DOCTYPE html&gt;</code> 声明、<code>&lt;html&gt;</code> 根元素、<code>&lt;head&gt;</code> 头部（包含元数据）和 <code>&lt;body&gt;</code> 主体（包含可见内容）组成。</p>
+	                <p>通过HTML5的语义化标签（如 <code>&lt;header&gt;</code>、<code>&lt;main&gt;</code>、<code>&lt;aside&gt;</code>），可以让网页结构更清晰，也有助于搜索引擎优化。</p>
+	            </div>
+	            <!-- 笔记3 -->
+	            <div id="note3" class="note-section">
+	                <h2>项目规划与想法</h2>
+	                <p>计划搭建一个纯静态的个人知识库系统。利用GitHub的版本控制功能，每次更新笔记只需修改HTML文件并推送，网站内容即可实时同步更新。</p>
+	                <p>后续可以探索引入Markdown解析库，实现只需替换文本内容即可更新排版，进一步降低维护成本。</p>
+	            </div>
+	        </main>
+	    </div>
+	    <script>
+	        function showNote(noteId, element) {
+	            // 隐藏所有笔记内容
+	            document.querySelectorAll('.note-section').forEach(section => {
+	                section.classList.remove('active');
+	            });
+	            // 移除所有导航高亮
+	            document.querySelectorAll('.nav-link').forEach(link => {
+	                link.classList.remove('active');
+	            });
+	            // 显示当前选中笔记并高亮导航
+	            document.getElementById(noteId).classList.add('active');
+	            element.classList.add('active');
+	        }
+	    </script>
+	</body>
+	</html>
